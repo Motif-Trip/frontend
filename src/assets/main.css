@@ -1,0 +1,20 @@
+@font-face {
+  font-family: 'BM Jua';
+  src: url('./fonts/BMJUA.otf') format('opentype');
+}
+
+@font-face {
+  font-family: 'BM Yeonsung';
+  src: url('./fonts/BMYEONSUNG_otf.otf') format('opentype');
+}
+
+@font-face {
+  font-family: 'BM Hanna Air';
+  src: url('./fonts/BMHANNAAir_otf.otf') format('opentype');
+}
+
+@font-face {
+  font-family: 'BM Hanna Pro';
+  src: url('./fonts/BMHANNAProOTF.otf') format('opentype');
+}
+
