@@ -22,7 +22,7 @@
   </button>
   <div
     @click="$emit('ToggleSignup')"
-    class="c(gray) font(14) underline hover:font(18) transition(.3s)"
+    class="c(gray) font(1vw) underline hover:font(1.2vw) transition(.3s)"
   >
     아직 Motif:모티브 계정이 없으신가요?
   </div>
