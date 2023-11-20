@@ -116,7 +116,7 @@ watch(local, (newValue) => {
   </button>
   <div
     @click="$emit('ToggleLogin')"
-    class="c(gray) font(14) underline hover:font(18) transition(.3s)"
+    class="c(gray) font(1vw) underline hover:font(1.2vw) transition(.3s)"
   >
     이미 아이디가 존재하신가요?
   </div>
