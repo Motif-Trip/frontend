@@ -1,24 +1,48 @@
 <script setup>
 import { ref } from 'vue'
 
-const isDisabledSearch = ref(true)
+const isActiveSearch = ref(false)
+const word = ref('')
+
+const emits = defineEmits(['SearchEnter'])
+
+const search = ({ target, code }) => {
+  if (!(code === 'Escape' || code === 'Enter')) {
+    return
+  }
+  target.blur()
+  isActiveSearch.value = false
+
+  if (code === 'Enter') {
+    emits('SearchEnter', word)
+  }
+}
+
+const inputWord = ({ target }) => {
+  word.value = target.value
+}
 </script>
 
 <template>
   <div class="z(1) layer(top:15) pack">
     <div
-      class="w(25vw) h(50px) relative bg(white) c(black) r(35) box-shadow(0/0/5/#A4A4A4) hover:box-shadow(0/0/10/#808080)+w(30vw) transition(.5s)"
+      class="w(25vw) h(50px) relative bg(white) c(black) r(35) box-shadow(0/0/5/#A4A4A4) transition(.5s)"
+      :class="isActiveSearch ? ['box-shadow(0/0/10/#808080)+w(30vw)'] : []"
     >
       <img
         src="@/assets/images/icon/search_icon.svg"
-        alt="search-icon"
+        alt="돋보기"
         class="w(20) h(20) absolute x(25) y(15)"
       />
       <input
         type="text"
         class="absolute x(center+1%) y(center) w(60%)"
         placeholder="어디로 놀러갈까!?"
-        :class="{ disabled: isDisabledSearch }"
+        :value="word"
+        @input="inputWord"
+        @focus="isActiveSearch = true"
+        @blur="isActiveSearch = false"
+        @keyup="search"
       />
     </div>
     <img
