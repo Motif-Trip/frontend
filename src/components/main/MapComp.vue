@@ -4,26 +4,29 @@
 
 <script setup>
 import { onMounted, ref, watch } from 'vue'
+import { useItemListStore } from '@/stores/counter'
 import axios from 'axios'
 
+const itemListStore = useItemListStore()
 const props = defineProps({
   subject_query: String
 })
 
-const query = ref('맛집')
+const container = ref(null)
 const map = ref(null)
 const lat = ref(37.5409583)
 const lng = ref(127.0684707)
-const container = ref(null)
-const count = ref(0)
 const markers = ref([])
+const query = ref('맛집')
+const moveToFirstMarker = ref(false)
+let activeMarker = null
+
 const clearMarkers = () => {
   markers.value.forEach((marker) => {
     marker.setMap(null)
   })
   markers.value = []
 }
-const itemList = []
 
 const loadScript = () => {
   const script = document.createElement('script')
@@ -45,43 +48,32 @@ const rendering = () => {
   }
 
   map.value = new kakao.maps.Map(container.value, options)
-  kakao.maps.event.addListener(map.value, 'dragend', function () {
-    const level = map.value.getLevel()
+
+  kakao.maps.event.addListener(map.value, 'dragstart', () => {
+    itemListStore.itemEntrance = false
+  })
+
+  kakao.maps.event.addListener(map.value, 'dragend', () => {
     const latlng = map.value.getCenter()
     lat.value = latlng.getLat()
     lng.value = latlng.getLng()
-
-    // 상태를 localStorage에 저장
-    localStorage.setItem('mapLat', lat.value)
-    localStorage.setItem('mapLng', lng.value)
-
+    clearMarkers()
     getData()
   })
 }
 
 watch(
   () => props.subject_query,
-  (newValue) => {
-    if (newValue) {
-      query.value = newValue
-      clearMarkers()
-      getData()
-    }
-  }
-)
-
-watch(
-  () => count.value,
-  (newValue) => {
-    console.log(newValue)
-    if (newValue >= 10) {
-      clearMarkers()
-      count.value = 0
-    }
+  (newValue, oldValue) => {
+    query.value = newValue
+    clearMarkers()
+    moveToFirstMarker.value = true
+    getData()
   }
 )
 
 const getData = () => {
+  itemListStore.clear()
   axios({
     method: 'get',
     url: import.meta.env.VITE_SEARCH_URL,
@@ -95,21 +87,39 @@ const getData = () => {
     .then(({ data }) => {
       console.log(data)
       for (const item of data.result.place.list) {
-        const imgSrc = 'src/assets/images/icon/map-marker.png'
-        const imgSize = new kakao.maps.Size(48, 48)
-        const imgOption = { offset: new kakao.maps.Point(24, 48) }
-        const markerImg = new kakao.maps.MarkerImage(imgSrc, imgSize, imgOption)
+        // 일반 마커 - 반투명
+        const normalImage = new kakao.maps.MarkerImage(
+          import.meta.env.VITE_DISABLED_MARKER_IMG,
+          new kakao.maps.Size(48, 48),
+          {
+            offset: new kakao.maps.Point(24, 48)
+          }
+        )
+
+        // 호버 마커 - 파란색
+        const hoverImage = new kakao.maps.MarkerImage(
+          import.meta.env.VITE_ENABLED_MARKER_IMG,
+          new kakao.maps.Size(64, 64),
+          {
+            offset: new kakao.maps.Point(32, 64)
+          }
+        )
+
         const position = new kakao.maps.LatLng(parseFloat(item.y), parseFloat(item.x))
+
+        // 마커 생성 부분
         const marker = new kakao.maps.Marker({
           map: map.value,
           position: position,
-          image: markerImg,
+          image: normalImage,
           clickable: true
         })
 
         const info = {
+          index: item.index,
           name: item.name,
           category: [...item.category],
+          context: [...item.context],
           address: item.address,
           status: item.businessStatus,
           hompage: item.hompage,
@@ -119,18 +129,39 @@ const getData = () => {
           tel: item.tel,
           thumUrls: item.thumUrls,
           x: item.x,
-          y: item.y
+          y: item.y,
+          marker: marker
         }
 
-        itemList.push(info)
-        markers.value.push(marker)
         kakao.maps.event.addListener(marker, 'click', () => {
+          // 이전에 활성화된 마커가 있으면 이미지를 normalImage로 변경
+          if (activeMarker) {
+            activeMarker.setImage(normalImage)
+          }
+
+          // 현재 클릭된 마커를 활성화된 마커로 설정하고 이미지 변경
+          marker.setImage(hoverImage)
+          activeMarker = marker
+
           console.log(info)
-          map.value.setLevel(2)
           map.value.panTo(position)
+          itemListStore.selectedItem = info.index
         })
+
+        itemListStore.add(info)
+        markers.value.push(marker)
       }
-      count.value++
+
+      if (moveToFirstMarker.value && markers.value.length > 0) {
+        map.value.panTo(
+          markers.value[Math.floor(Math.random() * markers.value.length)].getPosition()
+        )
+        moveToFirstMarker.value = false
+      }
+
+      itemListStore.itemEntrance = true
+      localStorage.setItem('mapLat', lat.value)
+      localStorage.setItem('mapLng', lng.value)
     })
     .catch((error) => {
       console.dir(error)
