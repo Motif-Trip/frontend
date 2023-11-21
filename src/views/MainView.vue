@@ -6,9 +6,6 @@
     <SearchBarComp @SearchEnter="search" />
     <!-- LeftSide : 검색 결과 아이템 리스트  -->
     <SearchResult :itemList="itemList" />
-    <button class="z(1) absolute x(center) y(~12vh) bg(white) r(25) w(10vw) h(5vh) b(1/black)">
-      강남역으로 이동
-    </button>
     <!-- Bottom : 타임테이블  -->
     <TimeTableComp />
   </div>
@@ -18,7 +15,7 @@
 import SearchBarComp from '@/components/main/SearchBarComp.vue'
 import TimeTableComp from '@/components/main/TimeTableComp.vue'
 import MapComp from '@/components/main/MapComp.vue'
-import SearchResult from '@/components/main/SearchResult.vue'
+import SearchResult from '@/components/main/ItemListComp.vue'
 import { ref } from 'vue'
 
 const itemList = ref([])

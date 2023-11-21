@@ -32,11 +32,11 @@ const inputWord = ({ target }) => {
       <img
         src="@/assets/images/icon/search_icon.svg"
         alt="돋보기"
-        class="w(20) h(20) absolute x(25) y(15)"
+        class="w(20) h(20) absolute x(2vw) y(15)"
       />
       <input
         type="text"
-        class="absolute x(center+1%) y(center) w(60%)"
+        class="absolute x(5vw) y(center) w(70%)"
         placeholder="어디로 놀러갈까!?"
         :value="word"
         @input="inputWord"
