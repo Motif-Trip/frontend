@@ -6,6 +6,7 @@ import { nextTick, ref, watch } from 'vue'
 
 const itemListStore = useItemListStore()
 const itemComps = ref([])
+const previouslyselected = ref(null)
 
 const setItemRef = (el, item) => {
   console.log(el + ' / ' + item)
@@ -19,13 +20,24 @@ watch(
   async (newValue, oldValue) => {
     if (newValue !== oldValue) {
       await nextTick()
+
+      if (previouslyselected.value && previouslyselected.value.$el) {
+        previouslyselected.value.$el.classList.add('box-shadow(0/0/5/#A4A4A4)')
+        previouslyselected.value.$el.classList.remove('selected')
+      }
+
       const selectedItemComp = itemComps.value[newValue]
       if (selectedItemComp && selectedItemComp.$el) {
+        selectedItemComp.$el.classList.add('selected')
+        selectedItemComp.$el.classList.remove('box-shadow(0/0/5/#A4A4A4)')
         const searchMenu = document.getElementById('search-menu')
         if (searchMenu) {
           const itemTop = selectedItemComp.$el.getBoundingClientRect().top
-          searchMenu.scrollTop = itemTop + searchMenu.scrollTop
+          const searchMenuTop = searchMenu.getBoundingClientRect().top
+          searchMenu.scrollTop += itemTop - searchMenuTop * 1.15
         }
+
+        previouslyselected.value = selectedItemComp
       }
     }
   }
@@ -53,6 +65,10 @@ watch(
 </template>
 
 <style scoped>
+.selected {
+  box-shadow: 0 0 7px 0 #009adc;
+}
+
 #search-menu {
   background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(15px);
