@@ -72,6 +72,43 @@ watch(
   }
 )
 
+watch(
+  () => itemListStore.clickedItem,
+  (newValue, oldValue) => {
+    if (newValue) {
+      // 이전에 활성화된 마커가 있으면 이미지를 일반 마커로 변경
+      if (activeMarker) {
+        activeMarker.setImage(
+          new kakao.maps.MarkerImage(
+            import.meta.env.VITE_DISABLED_MARKER_IMG,
+            new kakao.maps.Size(48, 48),
+            {
+              offset: new kakao.maps.Point(24, 48)
+            }
+          )
+        )
+      }
+
+      // 새로 클릭된 아이템의 마커를 찾아서 호버 마커로 변경
+      const clickedMarker = markers.value.find((marker) => marker === newValue.marker)
+      if (clickedMarker) {
+        clickedMarker.setImage(
+          new kakao.maps.MarkerImage(
+            import.meta.env.VITE_ENABLED_MARKER_IMG,
+            new kakao.maps.Size(64, 64),
+            {
+              offset: new kakao.maps.Point(32, 64)
+            }
+          )
+        )
+        activeMarker = clickedMarker // 현재 활성화된 마커 업데이트
+      }
+
+      map.value.panTo(newValue.marker.getPosition())
+    }
+  }
+)
+
 const getData = () => {
   itemListStore.clear()
   axios({
@@ -85,7 +122,9 @@ const getData = () => {
     }
   })
     .then(({ data }) => {
-      console.log(data)
+      // 데이터 호출 성공
+      itemListStore.isItemListLoaded = true
+
       for (const item of data.result.place.list) {
         // 일반 마커 - 반투명
         const normalImage = new kakao.maps.MarkerImage(
@@ -145,7 +184,7 @@ const getData = () => {
 
           console.log(info)
           map.value.panTo(position)
-          itemListStore.selectedItem = info.index
+          itemListStore.selectedItemComp = info.index
         })
 
         itemListStore.add(info)
@@ -164,7 +203,15 @@ const getData = () => {
       localStorage.setItem('mapLng', lng.value)
     })
     .catch((error) => {
+      // 데이터 호출 실패
+      itemListStore.isItemListLoaded = false
       console.dir(error)
+      if (error instanceof TypeError) {
+        setTimeout(() => {
+          window.location.reload()
+          alert('해당 검색어에 대한 내용을 찾을 수 없습니다')
+        }, 3000)
+      }
     })
 }
 

@@ -34,9 +34,9 @@ const toggleAuthTitle = computed(() => {
     </div>
     <div class="hbox gap(10) pack bg(#f5f5f5) flex">
       <IntroComp />
-      <div class="w(30vw) h(70vh) bg(white) b(#E1E1E1) gap(60) rr(20) vbox pack">
+      <div class="w(30vw) h(70vh) bg(white) b(#E1E1E1) gap(50) rr(20) vbox pack">
         <div id="signup-title" class="font(3.5vh) 600">{{ toggleAuthTitle }}</div>
-        <form @click.prevent class="vbox gap(20) w(30vw) pack">
+        <form @click.prevent class="vbox gap(10) pack">
           <LoginComp
             v-if="isAccountExisting"
             @toggle-signup="() => (isAccountExisting = false)"

@@ -1,116 +1,75 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
 
-const local = ref('')
-const domain = ref('naver.com')
-const email = computed(() => {
-  return local.value + '@' + domain.value
+const validation = ref({
+  passwordValid: '',
+  emailValid: '',
+  nicknameValid: ''
 })
-
-const memberForm = ref({
-  email: email,
+const passwordCheck = ref('')
+const form = ref({
+  email: '',
   password: '',
-  username: '',
   nickname: ''
 })
 
-const isValid = ref({
-  email_error: false,
-  password_error: false,
-  password_verification_error: false,
-  username_error: false,
-  nickname_error: false
+watch([() => form.value.password, () => passwordCheck.value], ([newPassword, newPasswordCheck]) => {
+  validation.value.passwordValid =
+    newPassword === newPasswordCheck ? '' : '비밀번호가 일치하지 않습니다.'
 })
 
-watch(local, (newValue) => {
-  if (newValue === '') {
-    isValid.value.email_error = false
+watch(
+  () => form.value.email,
+  (newEmail) => {
+    const emailRegex = /\S+@\S+\.\S+/
+    validation.value.emailValid = emailRegex.test(newEmail)
+      ? ''
+      : '유효하지 않은 이메일 주소입니다.'
   }
-})
+)
+
+watch(
+  () => form.value.nickname,
+  (newValue) => {
+    if (newValue.length >= 3 && newValue.length < 20) {
+      validation.value.nicknameValid = ''
+    } else {
+      validation.value.nicknameValid = '닉네임은 3자 이상 20자 미만이어야 합니다.'
+    }
+  }
+)
 </script>
 
 <template>
-  <div class="vbox w(20vw)">
-    <div
-      class="hbox bb(2/#E1E1E1) c(#B3B1B3)"
-      :class="{ 'bb(2/#E14C3B) c(#E14C3B)': isValid.email_error }"
-    >
-      <input v-model="local" type="text" class="w(50%) h(3vh) px(10)" placeholder="이메일" />
-      <div class="w(10%)">@</div>
-      <select v-model="domain" class="w(40%) h(3vh) px(10)">
-        <option value="naver.com" selected>naver.com</option>
-        <option value="google.com">google.com</option>
-        <option value="daum.net">daum.net</option>
-      </select>
+  <div class="vbox gap(15) pack">
+    <div id="email-form" class="input-container">
+      <input v-model="form.email" type="text" id="input" required="" />
+      <label for="input" class="label">이메일</label>
+      <div class="underline"></div>
     </div>
-    <div v-show="isValid.email_error" class="font(10) c(red) p(5) pack">
-      이미 존재하는 이메일입니다.
+    <div class="font(12) c(red)">{{ validation.emailValid }}</div>
+    <div id="password-form" class="input-container">
+      <input v-model="form.password" type="password" id="input" required="" />
+      <label for="input" class="label">비밀번호</label>
+      <div class="underline"></div>
     </div>
-  </div>
-  <div class="vbox w(20vw)">
-    <div
-      class="bb(2/#E1E1E1) c(#B3B1B3)"
-      :class="{ 'bb(2/#E14C3B) c(#E14C3B)': isValid.password_error }"
-    >
-      <input
-        v-model="memberForm.password"
-        type="password"
-        class="w(100%) h(3vh) px(10)"
-        placeholder="비밀번호"
-      />
+    <div class="font(12) c(red)">{{ validation.passwordValid }}</div>
+    <div id="password-check-form" class="input-container">
+      <input v-model="passwordCheck" type="password" id="input" required="" />
+      <label for="input" class="label">비밀번호 확인</label>
+      <div class="underline"></div>
     </div>
-    <div v-show="isValid.password_error" class="font(10) c(red) p(5) pack">
-      비밀번호는 최소 8자 이상 숫자,영문자,특수문자를 입력해 주세요.
+    <div class="font(12) c(red)">{{ validation.passwordValid }}</div>
+    <div id="nickname-form" class="input-container">
+      <input v-model="form.nickname" type="text" id="input" required="" />
+      <label for="input" class="label">닉네임</label>
+      <div class="underline"></div>
     </div>
-  </div>
-  <div class="vbox w(20vw)">
-    <div
-      class="bb(2/#E1E1E1) c(#B3B1B3)"
-      :class="{ 'bb(2/#E14C3B) c(#E14C3B)': isValid.password_verification_error }"
-    >
-      <input type="password" class="w(100%) h(3vh) px(10)" placeholder="비밀번호 확인" />
-    </div>
-    <div v-show="isValid.password_verification_error" class="font(10) c(red) p(5) pack">
-      비밀번호가 일치하지 않습니다.
-    </div>
-  </div>
-  <div class="vbox w(20vw)">
-    <div
-      class="bb(2/#E1E1E1) c(#B3B1B3)"
-      :class="{ 'bb(2/#E14C3B) c(#E14C3B)': isValid.username_error }"
-    >
-      <input
-        :value="memberForm.username"
-        @input="(event) => (memberForm.username = event.target.value)"
-        type="text"
-        class="w(100%) h(3vh) px(10)"
-        placeholder="이름"
-      />
-    </div>
-    <div v-show="isValid.username_error" class="font(10) c(red) p(5) pack">
-      이름은 한글, 영문자를 입력해 주세요.
-    </div>
-  </div>
-  <div class="vbox w(20vw)">
-    <div
-      class="bb(2/#E1E1E1) c(#B3B1B3)"
-      :class="{ 'bb(2/#E14C3B) c(#E14C3B)': isValid.nickname_error }"
-    >
-      <input
-        :value="memberForm.nickname"
-        @input="(event) => (memberForm.nickname = event.target.value)"
-        type="text"
-        class="w(100%) h(3vh) px(10)"
-        placeholder="닉네임"
-      />
-    </div>
-    <div v-show="isValid.nickname_error" class="font(10) c(red) p(5) pack">
-      이미 존재하는 닉네임입니다.
-    </div>
+    <div class="font(12) c(red)">{{ validation.nicknameValid }}</div>
   </div>
   <button
     id="signup-btn"
-    class="w(18vw) h(40) r(25) bg(#172040) c(white) mt(2vh) hover:bg(#327AD9)+c(white)+font(20) transition(.3s)"
+    class="w(18vw) h(40) r(25) bg(#172040) c(white) mt(2vh) mb(1vh) hover:bg(#327AD9)+c(white)+font(20) transition(.3s)"
   >
     가입하기
   </button>
@@ -123,12 +82,51 @@ watch(local, (newValue) => {
 </template>
 
 <style scoped>
-input,
-select {
-  border: 0;
+.input-container {
+  position: relative;
+  margin: 1vh 1vh 0 1vh;
+  width: 22vw;
 }
 
-#signup-btn {
-  font-family: 'BM Jua';
+.input-container input {
+  font-size: 1.5vw;
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid #ccc;
+  padding: 5px 0;
+  background-color: transparent;
+  outline: none;
+}
+
+.input-container .label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: #ccc;
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+.input-container input:focus ~ .label,
+.input-container input:valid ~ .label {
+  top: -20px;
+  font-size: 10px;
+  color: #333;
+}
+
+.input-container .underline {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  width: 100%;
+  background-color: #333;
+  transform: scaleX(0);
+  transition: all 0.3s ease;
+}
+
+.input-container input:focus ~ .underline,
+.input-container input:valid ~ .underline {
+  transform: scaleX(1);
 }
 </style>

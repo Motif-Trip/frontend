@@ -1,10 +1,12 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 
-export const useItemListStore = defineStore('itemList', () => {
+const useItemListStore = defineStore('itemList', () => {
   const itemList = ref([])
   const itemEntrance = ref(true)
-  const selectedItem = ref(0)
+  const selectedItemComp = ref(0)
+  const clickedItem = ref(null)
+  const isItemListLoaded = ref(false)
 
   const add = (item) => {
     itemList.value.push(item)
@@ -14,5 +16,21 @@ export const useItemListStore = defineStore('itemList', () => {
     itemList.value = []
   }
 
-  return { itemList, itemEntrance, selectedItem, add, clear }
+  const click = (item) => {
+    selectedItemComp.value = item.index
+    clickedItem.value = item
+  }
+
+  return {
+    itemList,
+    itemEntrance,
+    selectedItemComp,
+    clickedItem,
+    isItemListLoaded,
+    add,
+    clear,
+    click
+  }
 })
+
+export { useItemListStore }

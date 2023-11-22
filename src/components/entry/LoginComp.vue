@@ -1,21 +1,21 @@
 <script setup></script>
 
 <template>
-  <div class="hbox w(20vw) bb(2/#E1E1E1) c(#999799)">
-    <input type="text" class="w(50%) h(3vh) px(10)" placeholder="이메일" />
-    <div class="w(10%)">@</div>
-    <select class="w(40%) h(3vh) px(10)" name="domain">
-      <option value="naver.com">naver.com</option>
-      <option value="google.com">google.com</option>
-      <option value="daum.net">daum.net</option>
-    </select>
-  </div>
-  <div class="w(20vw) bb(2/#E1E1E1) c(#999799)">
-    <input type="password" class="w(100%) h(3vh) px(10)" placeholder="비밀번호" />
+  <div class="vbox gap(30)">
+    <div id="email-form" class="input-container">
+      <input type="text" id="input" required="" />
+      <label for="input" class="label">이메일</label>
+      <div class="underline"></div>
+    </div>
+    <div id="password-form" class="input-container">
+      <input type="password" id="input" required="" />
+      <label for="input" class="label">비밀번호</label>
+      <div class="underline"></div>
+    </div>
   </div>
   <button
     id="login-btn"
-    class="w(18vw) h(40) r(25) bg(#172040) c(white) mt(3vh) hover:bg(#327AD9)+c(white)+font(20) transition(.3s)"
+    class="w(18vw) h(40) r(25) bg(#172040) c(white) mt(5vh) mb(1vh) hover:bg(#327AD9)+c(white)+font(20) transition(.3s)"
     @click="$emit('EnterMainView')"
   >
     로그인
@@ -29,12 +29,51 @@
 </template>
 
 <style scoped>
-input,
-select {
-  border: 0;
+.input-container {
+  position: relative;
+  margin: 1vh 1vh 0 1vh;
+  width: 22vw;
 }
 
-#login-btn {
-  font-family: 'BM Jua';
+.input-container input {
+  font-size: 1.5vw;
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid #ccc;
+  padding: 5px 0;
+  background-color: transparent;
+  outline: none;
+}
+
+.input-container .label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: #ccc;
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+.input-container input:focus ~ .label,
+.input-container input:valid ~ .label {
+  top: -20px;
+  font-size: 10px;
+  color: #333;
+}
+
+.input-container .underline {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  width: 100%;
+  background-color: #333;
+  transform: scaleX(0);
+  transition: all 0.3s ease;
+}
+
+.input-container input:focus ~ .underline,
+.input-container input:valid ~ .underline {
+  transform: scaleX(1);
 }
 </style>
